@@ -1,16 +1,14 @@
 fn main() {
-    let data = include_str!("../data/day_2023_1.data")
-        .lines()
-        .collect::<Vec<_>>();
+    let data: Vec<_> = include_str!("../data/day_2023_1.data").lines().collect();
 
     println!("Part 1: {}", part1(&data));
     println!("Part 2: {}", part2(&data));
 }
 
-fn part1(data: &[&str]) -> usize {
+fn part1<T: AsRef<str>>(data: &[T]) -> usize {
     data.iter()
         .map(|line| {
-            let digits: Vec<char> = line.chars().filter(char::is_ascii_digit).collect();
+            let digits: Vec<char> = line.as_ref().chars().filter(char::is_ascii_digit).collect();
             format!("{}{}", digits.first().unwrap(), digits.last().unwrap())
                 .parse::<usize>()
                 .unwrap()
@@ -41,6 +39,5 @@ fn part2(data: &[&str]) -> usize {
                 .replace("nine", "9")
         })
         .collect::<Vec<_>>();
-    let ref_data: Vec<&str> = data.iter().map(std::convert::AsRef::as_ref).collect();
-    part1(&ref_data)
+    part1(&data)
 }
