@@ -15,3 +15,4 @@ name = "day2"
 path = "src/day2.rs"
 
 [dependencies]
+adventofcode-tooling = { path = "../adventofcode-tooling/" }
