@@ -34,7 +34,7 @@ impl FromStr for Turn {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let colors = s
             .split(',')
-            .map(|colors| colors.parse::<Color>())
+            .map(str::parse)
             .collect::<Result<Vec<Color>, _>>()?;
         Ok(Self { colors })
     }
@@ -57,7 +57,7 @@ impl FromStr for Game {
             .map_err(|_| AocError::ParsingError)?;
         let turns: Vec<Turn> = turns
             .split(';')
-            .map(|turn| turn.parse())
+            .map(str::parse)
             .collect::<Result<Vec<Turn>, _>>()?;
         Ok(Self { id, turns })
     }
