@@ -10,7 +10,7 @@ struct Card {
 
 impl Card {
     fn evaluate_part1(&self) -> usize {
-        let count = self.winning_count();
+        let count = self.winning_count().unwrap();
         if count == 0 {
             0
         } else {
@@ -18,11 +18,14 @@ impl Card {
         }
     }
 
-    fn winning_count(&self) -> u32 {
-        self.hand
-            .iter()
-            .filter(|item| self.winning_cards.contains(&item))
-            .count() as u32
+    fn winning_count(&self) -> Option<u32> {
+        u32::try_from(
+            self.hand
+                .iter()
+                .filter(|item| self.winning_cards.contains(item))
+                .count(),
+        )
+        .ok()
     }
 }
 
@@ -41,12 +44,12 @@ impl FromStr for Card {
         let (winning_cards, hand) = remain.split_once('|').ok_or(AocError::ParsingError)?;
 
         let winning_cards = get_cards(winning_cards).map_err(|_| AocError::ParsingError)?;
-        let hand = get_cards(&hand).map_err(|_| AocError::ParsingError)?;
+        let hand = get_cards(hand).map_err(|_| AocError::ParsingError)?;
 
         Ok(Self {
             card_id,
             winning_cards,
-            hand: hand,
+            hand,
         })
     }
 }
@@ -62,13 +65,13 @@ fn get_cards(input: &str) -> Result<Vec<usize>, std::num::ParseIntError> {
 }
 
 fn part1(deck: &[Card]) -> usize {
-    deck.iter().map(|card| card.evaluate_part1()).sum()
+    deck.iter().map(Card::evaluate_part1).sum()
 }
 
 fn part2(deck: &[Card]) -> usize {
     let mut hmap: HashMap<usize, usize> = HashMap::new();
     for card in deck {
-        let score = card.winning_count();
+        let score = card.winning_count().unwrap();
         *hmap.entry(card.card_id).or_default() += 1;
         let to_add = *hmap.get(&card.card_id).unwrap();
         for idx in 1..=score {
