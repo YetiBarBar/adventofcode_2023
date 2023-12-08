@@ -47,7 +47,7 @@ fn part1(cycle: &[char], nodes: &HashMap<String, Node>) -> usize {
     let mut current_node = "AAA".to_string();
     let mut steps = 0;
 
-    while current_node != "ZZZ".to_string() {
+    while current_node != *"ZZZ" {
         let mve = next_move.next();
         if mve == Some(&'L') {
             current_node = nodes.get(&current_node).unwrap().left.clone();

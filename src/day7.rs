@@ -1,4 +1,4 @@
-use std::cmp::Ordering::*;
+
 
 use std::{collections::HashMap, str::FromStr};
 fn main() {
@@ -91,16 +91,7 @@ impl FromStr for Hand {
             acc
         });
         let cardinality = cards.values().map(|v| v.pow(2)).sum();
-        Ok(Self {
-            cards,
-            first_card,
-            bid,
-            cardinality,
-            second_card,
-            third_card,
-            fourth_cards,
-            fifth_cards,
-        })
+        Ok(Self { cards, first_card, second_card, third_card, fourth_cards, fifth_cards, bid, cardinality })
     }
 }
 
@@ -181,16 +172,7 @@ impl FromStr for Hand2 {
             *cards.get_mut(&max_chr).unwrap() += j_count;
             cards.values().map(|v| v.pow(2)).sum()
         };
-        Ok(Self {
-            cards,
-            first_card,
-            bid,
-            cardinality,
-            second_card,
-            third_card,
-            fourth_cards,
-            fifth_cards,
-        })
+        Ok(Self { cards, first_card, second_card, third_card, fourth_cards, fifth_cards, bid, cardinality })
     }
 }
 

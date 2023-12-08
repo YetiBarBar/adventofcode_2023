@@ -112,10 +112,10 @@ fn part1_test() {
         .map(|seed| lighttotemperature.src_to_dest(seed))
         .map(|seed: usize| temperaturetohumidity.src_to_dest(seed))
         .map(|seed| humiditytolocation.src_to_dest(seed))
-        .inspect(|val| println!("{}", val))
+        .inspect(|val| println!("{val}"))
         .min();
 
-    println!("{:?}", min_loc);
+    println!("{min_loc:?}");
     let part2 = seeds
         .chunks(2)
         .flat_map(|windows| {
@@ -131,13 +131,13 @@ fn part1_test() {
         // .inspect(|value| println!("{}", value))
         .min();
 
-    println!("Part 2{:?}", part2);
+    println!("Part 2{part2:?}");
 }
 fn part1() {
     let seeds: Vec<usize> = vec![
-        432563865, 39236501, 1476854973, 326201032, 1004521373, 221995697, 2457503679, 46909145,
-        603710475, 11439698, 1242281714, 12935671, 2569215463, 456738587, 3859706369, 129955069,
-        3210146725, 618372750, 601583464, 1413192,
+        432_563_865, 39_236_501, 1_476_854_973, 326_201_032, 1_004_521_373, 221_995_697, 2_457_503_679, 46_909_145,
+        603_710_475, 11_439_698, 1_242_281_714, 12_935_671, 2_569_215_463, 456_738_587, 3_859_706_369, 129_955_069,
+        3_210_146_725, 618_372_750, 601_583_464, 1_413_192,
     ];
 
     let seed_to_soil = r#"2824905526 2969131334 898611144
@@ -354,7 +354,7 @@ fn part1() {
         // .inspect(|val| println!("{}", val))
         .min();
 
-    println!("Part 1{:?}", min_loc);
+    println!("Part 1{min_loc:?}");
 
     let part2 = seeds
         .chunks(2)
@@ -370,5 +370,5 @@ fn part1() {
         })
         .min();
 
-    println!("Part 2{:?}", part2);
+    println!("Part 2{part2:?}");
 }
