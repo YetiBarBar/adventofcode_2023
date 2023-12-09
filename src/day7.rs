@@ -1,5 +1,3 @@
-
-
 use std::{collections::HashMap, str::FromStr};
 fn main() {
     let raw: Vec<Hand> = r#"32T3K 765
@@ -17,8 +15,8 @@ QQQJA 483"#
         .map(str::parse)
         .map(Result::unwrap)
         .collect();
-    println!("Test: {}", part1(&raw));
-    println!("Part 1: {}", part1(&data));
+    println!("Test: {}", compute(&raw));
+    println!("Part 1: {}", compute(&data));
     let raw: Vec<Hand2> = r#"32T3K 765
 T55J5 684
 KK677 28
@@ -34,31 +32,31 @@ QQQJA 483"#
         .map(str::parse)
         .map(Result::unwrap)
         .collect();
-    println!("Test 2: {}", part2(&raw));
-    println!("Part 2: {}", part2(&data));
+    println!("Test 2: {}", compute(&raw));
+    println!("Part 2: {}", compute(&data));
 }
 
-// A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2
+trait CamelHand {
+    fn bid(&self) -> usize;
+}
+impl CamelHand for Hand {
+    fn bid(&self) -> usize {
+        self.bid
+    }
+}
+impl CamelHand for Hand2 {
+    fn bid(&self) -> usize {
+        self.bid
+    }
+}
 
-fn part1(hands: &[Hand]) -> usize {
+fn compute<T: CamelHand + Ord + Clone>(hands: &[T]) -> usize {
     let mut hands = hands.to_vec();
     hands.sort_unstable();
     hands
         .iter()
         .zip(1..)
-        // .inspect(|(hand, position)| println!("{} {}", hand.bid, position))
-        .map(|(hand, position)| hand.bid * position)
-        .sum()
-}
-
-fn part2(hands: &[Hand2]) -> usize {
-    let mut hands = hands.to_vec();
-    hands.sort_unstable();
-    hands
-        .iter()
-        .zip(1..)
-        // .inspect(|(hand, position)| println!("{} {}", hand.bid, position))
-        .map(|(hand, position)| hand.bid * position)
+        .map(|(hand, position)| hand.bid() * position)
         .sum()
 }
 
@@ -91,7 +89,16 @@ impl FromStr for Hand {
             acc
         });
         let cardinality = cards.values().map(|v| v.pow(2)).sum();
-        Ok(Self { cards, first_card, second_card, third_card, fourth_cards, fifth_cards, bid, cardinality })
+        Ok(Self {
+            cards,
+            first_card,
+            second_card,
+            third_card,
+            fourth_cards,
+            fifth_cards,
+            bid,
+            cardinality,
+        })
     }
 }
 
@@ -157,7 +164,6 @@ impl FromStr for Hand2 {
             acc
         });
 
-        // println!("{:?}", cards);
         let j_count = *cards.get(&'J').unwrap_or(&0);
         let cardinality = if j_count == 5 {
             25
@@ -172,7 +178,16 @@ impl FromStr for Hand2 {
             *cards.get_mut(&max_chr).unwrap() += j_count;
             cards.values().map(|v| v.pow(2)).sum()
         };
-        Ok(Self { cards, first_card, second_card, third_card, fourth_cards, fifth_cards, bid, cardinality })
+        Ok(Self {
+            cards,
+            first_card,
+            second_card,
+            third_card,
+            fourth_cards,
+            fifth_cards,
+            bid,
+            cardinality,
+        })
     }
 }
 

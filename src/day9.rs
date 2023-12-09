@@ -15,7 +15,7 @@ fn main() {
 
 fn part1(data: &[Vec<i64>]) -> i64 {
     data.iter()
-        .map(|v| v.last().copied().unwrap() + compute_next_part1(v))
+        .map(|v| v.last().copied().unwrap() + compute_next(v))
         .sum()
 }
 
@@ -27,7 +27,7 @@ fn part2(data: &[Vec<i64>]) -> i64 {
     part1(&data)
 }
 
-fn compute_next_part1(data: &[i64]) -> i64 {
+fn compute_next(data: &[i64]) -> i64 {
     let new_line: Vec<i64> = data
         .windows(2)
         .map(|window| window[1] - window[0])
@@ -36,7 +36,7 @@ fn compute_next_part1(data: &[i64]) -> i64 {
     if new_line.iter().all(|v| v == &0) {
         0
     } else {
-        compute_next_part1(&new_line) + new_line.last().copied().unwrap()
+        compute_next(&new_line) + new_line.last().copied().unwrap()
     }
 }
 
