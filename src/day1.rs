@@ -44,3 +44,33 @@ fn transform_str(line: &str) -> String {
         acc.replace(pattern, newstr)
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_day1_part1() {
+        let data: Vec<_> = r"1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet"
+            .lines()
+            .collect();
+        assert_eq!(part1(data.iter()), 142)
+    }
+
+    #[test]
+    fn test_day1_part2() {
+        let data: Vec<_> = r"two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen"
+            .lines()
+            .collect();
+        assert_eq!(part2(&data), 281)
+    }
+}
