@@ -1,53 +1,52 @@
 use std::{collections::HashMap, str::FromStr};
+
+macro_rules! run_part {
+    ($idx:expr, $type:ty) => {
+        let data_part: Vec<$type> = include_str!("../data/day_2023_7.data")
+            .lines()
+            .map(str::parse)
+            .map(Result::unwrap)
+            .collect();
+
+        println!("Part {}: {}", $idx, compute(&data_part));
+    };
+}
+
 fn main() {
-    let raw: Vec<Hand> = r"32T3K 765
-T55J5 684
-KK677 28
-KTJJT 220
-QQQJA 483"
-        .lines()
-        .map(str::parse)
-        .map(Result::unwrap)
-        .collect();
-
-    let data: Vec<Hand> = include_str!("../data/day_2023_7.data")
-        .lines()
-        .map(str::parse)
-        .map(Result::unwrap)
-        .collect();
-    println!("Test: {}", compute(&raw));
-    println!("Part 1: {}", compute(&data));
-    let raw: Vec<Hand2> = r"32T3K 765
-T55J5 684
-KK677 28
-KTJJT 220
-QQQJA 483"
-        .lines()
-        .map(str::parse)
-        .map(Result::unwrap)
-        .collect();
-
-    let data: Vec<Hand2> = include_str!("../data/day_2023_7.data")
-        .lines()
-        .map(str::parse)
-        .map(Result::unwrap)
-        .collect();
-    println!("Test 2: {}", compute(&raw));
-    println!("Part 2: {}", compute(&data));
+    run_part!(1, HandPart1);
+    run_part!(2, HandPart2);
 }
 
 trait CamelHand {
     fn bid(&self) -> usize;
 }
-impl CamelHand for Hand {
-    fn bid(&self) -> usize {
-        self.bid
-    }
+
+fn getcards_part1(cards: &str) -> Vec<u32> {
+    cards
+        .chars()
+        .map(|chr| match chr {
+            'A' => 15,
+            'K' => 14,
+            'Q' => 13,
+            'J' => 12,
+            'T' => 11,
+            x => x.to_digit(10).unwrap(),
+        })
+        .collect()
 }
-impl CamelHand for Hand2 {
-    fn bid(&self) -> usize {
-        self.bid
-    }
+
+fn getcards_part2(cards: &str) -> Vec<u32> {
+    cards
+        .chars()
+        .map(|chr| match chr {
+            'A' => 15,
+            'K' => 14,
+            'Q' => 13,
+            'J' => 1,
+            'T' => 11,
+            x => x.to_digit(10).unwrap(),
+        })
+        .collect()
 }
 
 fn compute<T: CamelHand + Ord + Clone>(hands: &[T]) -> usize {
@@ -60,29 +59,50 @@ fn compute<T: CamelHand + Ord + Clone>(hands: &[T]) -> usize {
         .sum()
 }
 
-#[derive(Eq, PartialEq, Clone)]
-struct Hand {
-    cards: HashMap<char, usize>,
-    first_card: u32,
-    second_card: u32,
-    third_card: u32,
-    fourth_cards: u32,
-    fifth_cards: u32,
-    bid: usize,
-    cardinality: usize,
+macro_rules! declare_hand_type {
+    ($($handtype:ident,)+) => {
+$(
+   #[derive(Eq, PartialEq, Clone)]
+    struct $handtype {
+        cards: HashMap<char, usize>,
+        hand: Vec<u32>,
+        bid: usize,
+        cardinality: usize,
+    }
+
+    impl Ord for $handtype {
+        fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+            self.cardinality
+                .cmp(&other.cardinality)
+                .then_with(|| self.hand[0].cmp(&other.hand[0]))
+                .then_with(|| self.hand[1].cmp(&other.hand[1]))
+                .then_with(|| self.hand[2].cmp(&other.hand[2]))
+                .then_with(|| self.hand[3].cmp(&other.hand[3]))
+                .then_with(|| self.hand[4].cmp(&other.hand[4]))
+        }
+    }
+    impl PartialOrd for $handtype {
+        fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+            Some(self.cmp(other))
+        }
+    }
+
+    impl CamelHand for $handtype {
+        fn bid(&self) -> usize {
+            self.bid
+        }}
+)+};
 }
 
-impl FromStr for Hand {
+declare_hand_type!(HandPart1, HandPart2,);
+
+impl FromStr for HandPart1 {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (cards, bid) = s.trim().split_once(' ').expect("Cards <-> bid failed");
         let bid = bid.parse().unwrap();
-        let first_card = get_char(cards, 0);
-        let second_card = get_char(cards, 1);
-        let third_card = get_char(cards, 2);
-        let fourth_cards = get_char(cards, 3);
-        let fifth_cards = get_char(cards, 4);
+        let hand = getcards_part1(cards);
 
         let cards: HashMap<char, usize> = cards.chars().fold(HashMap::new(), |mut acc, chr| {
             *acc.entry(chr).or_default() += 1;
@@ -91,73 +111,20 @@ impl FromStr for Hand {
         let cardinality = cards.values().map(|v| v.pow(2)).sum();
         Ok(Self {
             cards,
-            first_card,
-            second_card,
-            third_card,
-            fourth_cards,
-            fifth_cards,
+            hand,
             bid,
             cardinality,
         })
     }
 }
 
-fn get_char(cards: &str, position: usize) -> u32 {
-    let first_card = cards
-        .chars()
-        .nth(position)
-        .map(|chr| match chr {
-            'A' => 15,
-            'K' => 14,
-            'Q' => 13,
-            'J' => 12,
-            'T' => 11,
-            x => x.to_digit(10).unwrap(),
-        })
-        .unwrap();
-    first_card
-}
-
-impl Ord for Hand {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.cardinality
-            .cmp(&other.cardinality)
-            .then_with(|| self.first_card.cmp(&other.first_card))
-            .then_with(|| self.second_card.cmp(&other.second_card))
-            .then_with(|| self.third_card.cmp(&other.third_card))
-            .then_with(|| self.fourth_cards.cmp(&other.fourth_cards))
-            .then_with(|| self.fifth_cards.cmp(&other.fifth_cards))
-    }
-}
-
-impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-#[derive(Eq, PartialEq, Clone)]
-struct Hand2 {
-    cards: HashMap<char, usize>,
-    first_card: u32,
-    second_card: u32,
-    third_card: u32,
-    fourth_cards: u32,
-    fifth_cards: u32,
-    bid: usize,
-    cardinality: usize,
-}
-impl FromStr for Hand2 {
+impl FromStr for HandPart2 {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (cards, bid) = s.trim().split_once(' ').expect("Cards <-> bid failed");
         let bid = bid.parse().unwrap();
-        let first_card = get_char2(cards, 0);
-        let second_card = get_char2(cards, 1);
-        let third_card = get_char2(cards, 2);
-        let fourth_cards = get_char2(cards, 3);
-        let fifth_cards = get_char2(cards, 4);
+        let hand = getcards_part2(cards);
 
         let mut cards: HashMap<char, usize> = cards.chars().fold(HashMap::new(), |mut acc, chr| {
             *acc.entry(chr).or_default() += 1;
@@ -180,46 +147,44 @@ impl FromStr for Hand2 {
         };
         Ok(Self {
             cards,
-            first_card,
-            second_card,
-            third_card,
-            fourth_cards,
-            fifth_cards,
+            hand,
             bid,
             cardinality,
         })
     }
 }
 
-fn get_char2(cards: &str, position: usize) -> u32 {
-    let first_card = cards
-        .chars()
-        .nth(position)
-        .map(|chr| match chr {
-            'A' => 15,
-            'K' => 14,
-            'Q' => 13,
-            'J' => 1,
-            'T' => 11,
-            x => x.to_digit(10).unwrap(),
-        })
-        .unwrap();
-    first_card
-}
-impl Ord for Hand2 {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.cardinality
-            .cmp(&other.cardinality)
-            .then_with(|| self.first_card.cmp(&other.first_card))
-            .then_with(|| self.second_card.cmp(&other.second_card))
-            .then_with(|| self.third_card.cmp(&other.third_card))
-            .then_with(|| self.fourth_cards.cmp(&other.fourth_cards))
-            .then_with(|| self.fifth_cards.cmp(&other.fifth_cards))
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl PartialOrd for Hand2 {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
+    #[test]
+    fn test_day7_part1() {
+        let raw: Vec<HandPart1> = r"32T3K 765
+T55J5 684
+KK677 28
+KTJJT 220
+QQQJA 483"
+            .lines()
+            .map(str::parse)
+            .map(Result::unwrap)
+            .collect();
+
+        assert_eq!(compute(&raw), 6440)
+    }
+
+    #[test]
+    fn test_day7_part2() {
+        let raw: Vec<HandPart2> = r"32T3K 765
+T55J5 684
+KK677 28
+KTJJT 220
+QQQJA 483"
+            .lines()
+            .map(str::parse)
+            .map(Result::unwrap)
+            .collect();
+
+        assert_eq!(compute(&raw), 5905)
     }
 }

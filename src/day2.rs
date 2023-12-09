@@ -92,17 +92,6 @@ impl Game {
     }
 }
 
-fn part1(data: &[Game]) -> usize {
-    data.iter()
-        .filter_map(|game| {
-            game.turns
-                .iter()
-                .all(|turn| turn.is_turn_valid_part1(12, 13, 14))
-                .then_some(game.id)
-        })
-        .sum()
-}
-
 fn main() {
     let data: Vec<Game> = include_str!("../data/day_2023_2.data")
         .lines()
@@ -112,6 +101,17 @@ fn main() {
 
     println!("Part 1: {}", part1(&data));
     println!("Part 2: {}", part2(&data));
+}
+
+fn part1(data: &[Game]) -> usize {
+    data.iter()
+        .filter_map(|game| {
+            game.turns
+                .iter()
+                .all(|turn| turn.is_turn_valid_part1(12, 13, 14))
+                .then_some(game.id)
+        })
+        .sum()
 }
 
 fn part2(data: &[Game]) -> usize {
