@@ -9,7 +9,7 @@ struct Node {
     right: String,
 }
 
-impl<'a> FromStr for Node {
+impl FromStr for Node {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
