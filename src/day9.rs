@@ -46,9 +46,9 @@ mod tests {
 
     #[test]
     fn test_day9_part1() {
-        let test_data: Vec<Vec<i64>> = r#"0 3 6 9 12 15
+        let test_data: Vec<Vec<i64>> = r"0 3 6 9 12 15
 1 3 6 10 15 21
-10 13 16 21 30 45"#
+10 13 16 21 30 45"
             .lines()
             .map(|line| {
                 line.split_ascii_whitespace()
@@ -62,9 +62,9 @@ mod tests {
 
     #[test]
     fn test_day9_part2() {
-        let test_data: Vec<Vec<i64>> = r#"0 3 6 9 12 15
+        let test_data: Vec<Vec<i64>> = r"0 3 6 9 12 15
 1 3 6 10 15 21
-10 13 16 21 30 45"#
+10 13 16 21 30 45"
             .lines()
             .map(|line| {
                 line.split_ascii_whitespace()

@@ -1,10 +1,10 @@
 use std::{collections::HashMap, str::FromStr};
 fn main() {
-    let raw: Vec<Hand> = r#"32T3K 765
+    let raw: Vec<Hand> = r"32T3K 765
 T55J5 684
 KK677 28
 KTJJT 220
-QQQJA 483"#
+QQQJA 483"
         .lines()
         .map(str::parse)
         .map(Result::unwrap)
@@ -17,11 +17,11 @@ QQQJA 483"#
         .collect();
     println!("Test: {}", compute(&raw));
     println!("Part 1: {}", compute(&data));
-    let raw: Vec<Hand2> = r#"32T3K 765
+    let raw: Vec<Hand2> = r"32T3K 765
 T55J5 684
 KK677 28
 KTJJT 220
-QQQJA 483"#
+QQQJA 483"
         .lines()
         .map(str::parse)
         .map(Result::unwrap)

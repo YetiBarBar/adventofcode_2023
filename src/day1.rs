@@ -1,43 +1,46 @@
 fn main() {
     let data: Vec<_> = include_str!("../data/day_2023_1.data").lines().collect();
 
-    println!("Part 1: {}", part1(&data));
+    println!("Part 1: {}", part1(data.iter()));
     println!("Part 2: {}", part2(&data));
 }
 
-fn part1<T: AsRef<str>>(data: &[T]) -> usize {
-    data.iter()
-        .map(|line| {
-            let digits: Vec<char> = line.as_ref().chars().filter(char::is_ascii_digit).collect();
-            format!("{}{}", digits.first().unwrap(), digits.last().unwrap())
-                .parse::<usize>()
-                .unwrap()
-        })
-        .sum()
+fn part1<T: AsRef<str>>(data: impl Iterator<Item = T>) -> usize {
+    data.map(|line| {
+        let digits: Vec<char> = line.as_ref().chars().filter(char::is_ascii_digit).collect();
+        format!("{}{}", digits.first().unwrap(), digits.last().unwrap())
+            .parse::<usize>()
+            .unwrap()
+    })
+    .sum()
 }
 
 fn part2(data: &[&str]) -> usize {
-    let data = data
-        .iter()
-        .map(|line| {
-            line.replace("twone", "21")
-                .replace("oneight", "18")
-                .replace("threeight", "38")
-                .replace("fiveight", "58")
-                .replace("sevenine", "79")
-                .replace("eightwo", "82")
-                .replace("eighthree", "83")
-                .replace("nineight", "98")
-                .replace("one", "1")
-                .replace("two", "2")
-                .replace("three", "3")
-                .replace("four", "4")
-                .replace("five", "5")
-                .replace("six", "6")
-                .replace("seven", "7")
-                .replace("eight", "8")
-                .replace("nine", "9")
-        })
-        .collect::<Vec<_>>();
-    part1(&data)
+    part1(data.iter().map(|line| transform_str(line)))
+}
+
+fn transform_str(line: &str) -> String {
+    [
+        ("twone", "21"),
+        ("oneight", "18"),
+        ("threeight", "38"),
+        ("fiveight", "58"),
+        ("sevenine", "79"),
+        ("eightwo", "82"),
+        ("eighthree", "83"),
+        ("nineight", "98"),
+        ("one", "1"),
+        ("two", "2"),
+        ("three", "3"),
+        ("four", "4"),
+        ("five", "5"),
+        ("six", "6"),
+        ("seven", "7"),
+        ("eight", "8"),
+        ("nine", "9"),
+    ]
+    .iter()
+    .fold(line.to_string(), |acc, (pattern, newstr)| {
+        acc.replace(pattern, newstr)
+    })
 }
