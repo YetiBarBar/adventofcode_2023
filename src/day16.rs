@@ -38,7 +38,11 @@ struct Beam {
 }
 
 impl Beam {
-    fn nexts(&self, map: &Matrix2D<CellType>) -> Vec<Beam> {
+    fn new(x: usize, y: usize, heading: Heading) -> Self {
+        Self { x, y, heading }
+    }
+
+    fn next_points(&self, map: &Matrix2D<CellType>) -> Vec<Beam> {
         let mut res = vec![];
         let (next_x, next_y) = match self.heading {
             Heading::Up => (self.x, self.y.wrapping_sub(1)),
@@ -56,85 +60,29 @@ impl Beam {
                 }),
                 CellType::VerticalSplitter => match self.heading {
                     Heading::Left | Heading::Right => {
-                        res.push(Beam {
-                            x: next_x,
-                            y: next_y,
-                            heading: Heading::Up,
-                        });
-                        res.push(Beam {
-                            x: next_x,
-                            y: next_y,
-                            heading: Heading::Down,
-                        });
+                        res.push(Beam::new(next_x, next_y, Heading::Up));
+                        res.push(Beam::new(next_x, next_y, Heading::Down));
                     }
-                    _ => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: self.heading,
-                    }),
+                    _ => res.push(Beam::new(next_x, next_y, self.heading)),
                 },
                 CellType::HorizontalSplitter => match self.heading {
                     Heading::Up | Heading::Down => {
-                        res.push(Beam {
-                            x: next_x,
-                            y: next_y,
-                            heading: Heading::Left,
-                        });
-                        res.push(Beam {
-                            x: next_x,
-                            y: next_y,
-                            heading: Heading::Right,
-                        });
+                        res.push(Beam::new(next_x, next_y, Heading::Left));
+                        res.push(Beam::new(next_x, next_y, Heading::Right));
                     }
-                    _ => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: self.heading,
-                    }),
+                    _ => res.push(Beam::new(next_x, next_y, self.heading)),
                 },
                 CellType::SlashMirror => match self.heading {
-                    Heading::Up => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Right,
-                    }),
-                    Heading::Down => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Left,
-                    }),
-                    Heading::Left => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Down,
-                    }),
-                    Heading::Right => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Up,
-                    }),
+                    Heading::Up => res.push(Beam::new(next_x, next_y, Heading::Right)),
+                    Heading::Down => res.push(Beam::new(next_x, next_y, Heading::Left)),
+                    Heading::Left => res.push(Beam::new(next_x, next_y, Heading::Down)),
+                    Heading::Right => res.push(Beam::new(next_x, next_y, Heading::Up)),
                 },
                 CellType::AntiSlashMirror => match self.heading {
-                    Heading::Up => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Left,
-                    }),
-                    Heading::Down => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Right,
-                    }),
-                    Heading::Left => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Up,
-                    }),
-                    Heading::Right => res.push(Beam {
-                        x: next_x,
-                        y: next_y,
-                        heading: Heading::Down,
-                    }),
+                    Heading::Up => res.push(Beam::new(next_x, next_y, Heading::Left)),
+                    Heading::Down => res.push(Beam::new(next_x, next_y, Heading::Right)),
+                    Heading::Left => res.push(Beam::new(next_x, next_y, Heading::Up)),
+                    Heading::Right => res.push(Beam::new(next_x, next_y, Heading::Down)),
                 },
             }
         }
@@ -142,63 +90,40 @@ impl Beam {
     }
 }
 
-fn compute_entry(x: usize, y: usize, heading: Heading, map: &Matrix2D<CellType>) -> Vec<Beam> {
+fn compute_inserted_beams(
+    x: usize,
+    y: usize,
+    heading: Heading,
+    map: &Matrix2D<CellType>,
+) -> Vec<Beam> {
     let mut res = vec![];
 
     match (map.get(x, y).unwrap(), heading) {
         (CellType::VerticalSplitter, Heading::Left | Heading::Right) => {
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Up,
-            });
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Down,
-            });
+            res.push(Beam::new(x, y, Heading::Up));
+            res.push(Beam::new(x, y, Heading::Down));
         }
         (CellType::HorizontalSplitter, Heading::Up | Heading::Down) => {
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Left,
-            });
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Right,
-            });
+            res.push(Beam::new(x, y, Heading::Left));
+            res.push(Beam::new(x, y, Heading::Right));
         }
-        (CellType::SlashMirror, Heading::Up) | (CellType::AntiSlashMirror, Heading::Down) => res
-            .push(Beam {
-                x,
-                y,
-                heading: Heading::Right,
-            }),
-        (CellType::SlashMirror, Heading::Down) | (CellType::AntiSlashMirror, Heading::Up) => res
-            .push(Beam {
-                x,
-                y,
-                heading: Heading::Left,
-            }),
-        (CellType::SlashMirror, Heading::Left) | (CellType::AntiSlashMirror, Heading::Right) => res
-            .push(Beam {
-                x,
-                y,
-                heading: Heading::Down,
-            }),
-        (CellType::SlashMirror, Heading::Right) | (CellType::AntiSlashMirror, Heading::Left) => res
-            .push(Beam {
-                x,
-                y,
-                heading: Heading::Up,
-            }),
+        (CellType::SlashMirror, Heading::Up) | (CellType::AntiSlashMirror, Heading::Down) => {
+            res.push(Beam::new(x, y, Heading::Right));
+        }
+        (CellType::SlashMirror, Heading::Down) | (CellType::AntiSlashMirror, Heading::Up) => {
+            res.push(Beam::new(x, y, Heading::Left));
+        }
+        (CellType::SlashMirror, Heading::Left) | (CellType::AntiSlashMirror, Heading::Right) => {
+            res.push(Beam::new(x, y, Heading::Down));
+        }
+        (CellType::SlashMirror, Heading::Right) | (CellType::AntiSlashMirror, Heading::Left) => {
+            res.push(Beam::new(x, y, Heading::Up));
+        }
         (
             CellType::EmptySpace | CellType::VerticalSplitter | CellType::HorizontalSplitter,
             heading,
         ) => {
-            res.push(Beam { x, y, heading });
+            res.push(Beam::new(x, y, heading));
         }
     }
     res
@@ -207,13 +132,13 @@ fn compute_entry(x: usize, y: usize, heading: Heading, map: &Matrix2D<CellType>)
 fn part(map: &Matrix2D<CellType>, start_x: usize, start_y: usize, start_heading: Heading) -> usize {
     let mut visited = HashSet::new();
 
-    let mut adjacents = compute_entry(start_x, start_y, start_heading, map);
+    let mut adjacents = compute_inserted_beams(start_x, start_y, start_heading, map);
 
     loop {
         let mut new_adjacents = vec![];
         for beam in adjacents {
             visited.insert(beam.clone());
-            new_adjacents.extend(beam.nexts(map).into_iter());
+            new_adjacents.extend(beam.next_points(map).into_iter());
         }
         if new_adjacents.is_empty() {
             break;
