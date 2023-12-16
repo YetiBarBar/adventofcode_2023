@@ -232,27 +232,17 @@ fn part(map: &Matrix2D<CellType>, start_x: usize, start_y: usize, start_heading:
 }
 
 fn part2(map: &Matrix2D<CellType>) -> usize {
-    let max1 = (0..map.height)
+    (0..map.height)
         .map(|idx| part(map, idx, 0, Heading::Down))
+        .chain((0..map.height).map(|idx| part(map, idx, map.width - 1, Heading::Up)))
+        .chain((0..map.width).map(|idx| part(map, 0, idx, Heading::Right)))
+        .chain((0..map.width).map(|idx| part(map, map.height - 1, idx, Heading::Left)))
         .max()
-        .unwrap_or(0);
-    let max2 = (0..map.height)
-        .map(|idx| part(map, idx, map.width - 1, Heading::Up))
-        .max()
-        .unwrap_or(0);
-    let max3 = (0..map.width)
-        .map(|idx| part(map, 0, idx, Heading::Right))
-        .max()
-        .unwrap_or(0);
-    let max4 = (0..map.height)
-        .map(|idx| part(map, map.width - 1, idx, Heading::Left))
-        .max()
-        .unwrap_or(0);
-
-    max1.max(max2).max(max3).max(max4)
+        .unwrap()
 }
 
 fn main() {
+    let now = std::time::Instant::now();
     let data: Vec<&str> = include_str!("../data/day_2023_16.data").lines().collect();
     let len_x = data[0].chars().count();
     let len_y = data.len();
@@ -268,4 +258,6 @@ fn main() {
 
     println!("Part 1: {}", part(&data_matrix, 0, 0, Heading::Right));
     println!("Part 2: {}", part2(&data_matrix));
+    let elapsed = now.elapsed();
+    println!("Exec time: {} \u{b5}s", elapsed.as_micros());
 }
