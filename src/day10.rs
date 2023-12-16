@@ -12,6 +12,25 @@ enum PipeDirection {
     Empty,
 }
 
+impl std::fmt::Display for PipeDirection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                PipeDirection::VerticalPipe => '|',
+                PipeDirection::HorizontalPipe => '-',
+                PipeDirection::NorthEastBend => '└',
+                PipeDirection::NorthWestBend => '┘',
+                PipeDirection::SouthEastBend => '┌',
+                PipeDirection::SouthWestBend => '┐',
+                PipeDirection::Start => 'S',
+                PipeDirection::Empty => ' ',
+            }
+        )
+    }
+}
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 enum Direction {
     North,
@@ -137,6 +156,17 @@ LJ..."
     );
 
     println!("Part 1: {}", v.len() / 2);
+
+    for y in 0..140 {
+        for x in 0..140 {
+            if v.contains(&(x, y)) {
+                print!("{}", data.get(&(x, y)).unwrap())
+            } else {
+                print!(" ");
+            }
+        }
+        println!();
+    }
 }
 
 fn dig(
