@@ -146,8 +146,7 @@ fn compute_entry(x: usize, y: usize, heading: Heading, map: &Matrix2D<CellType>)
     let mut res = vec![];
 
     match (map.get(x, y).unwrap(), heading) {
-        (CellType::EmptySpace, heading) => res.push(Beam { x, y, heading }),
-        (CellType::VerticalSplitter, Heading::Left) => {
+        (CellType::VerticalSplitter, Heading::Left | Heading::Right) => {
             res.push(Beam {
                 x,
                 y,
@@ -157,87 +156,50 @@ fn compute_entry(x: usize, y: usize, heading: Heading, map: &Matrix2D<CellType>)
                 x,
                 y,
                 heading: Heading::Down,
-            })
+            });
         }
-        (CellType::VerticalSplitter, Heading::Right) => {
+        (CellType::HorizontalSplitter, Heading::Up | Heading::Down) => {
             res.push(Beam {
                 x,
                 y,
-                heading: Heading::Up,
+                heading: Heading::Left,
             });
             res.push(Beam {
+                x,
+                y,
+                heading: Heading::Right,
+            });
+        }
+        (CellType::SlashMirror, Heading::Up) | (CellType::AntiSlashMirror, Heading::Down) => res
+            .push(Beam {
+                x,
+                y,
+                heading: Heading::Right,
+            }),
+        (CellType::SlashMirror, Heading::Down) | (CellType::AntiSlashMirror, Heading::Up) => res
+            .push(Beam {
+                x,
+                y,
+                heading: Heading::Left,
+            }),
+        (CellType::SlashMirror, Heading::Left) | (CellType::AntiSlashMirror, Heading::Right) => res
+            .push(Beam {
                 x,
                 y,
                 heading: Heading::Down,
-            })
+            }),
+        (CellType::SlashMirror, Heading::Right) | (CellType::AntiSlashMirror, Heading::Left) => res
+            .push(Beam {
+                x,
+                y,
+                heading: Heading::Up,
+            }),
+        (
+            CellType::EmptySpace | CellType::VerticalSplitter | CellType::HorizontalSplitter,
+            heading,
+        ) => {
+            res.push(Beam { x, y, heading });
         }
-        (CellType::VerticalSplitter, _) => res.push(Beam { x, y, heading }),
-
-        (CellType::HorizontalSplitter, Heading::Up) => {
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Left,
-            });
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Right,
-            })
-        }
-        (CellType::HorizontalSplitter, Heading::Down) => {
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Left,
-            });
-            res.push(Beam {
-                x,
-                y,
-                heading: Heading::Right,
-            })
-        }
-        (CellType::HorizontalSplitter, _) => res.push(Beam { x, y, heading }),
-        (CellType::SlashMirror, Heading::Up) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Right,
-        }),
-        (CellType::SlashMirror, Heading::Down) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Left,
-        }),
-        (CellType::SlashMirror, Heading::Left) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Down,
-        }),
-        (CellType::SlashMirror, Heading::Right) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Up,
-        }),
-        (CellType::AntiSlashMirror, Heading::Up) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Left,
-        }),
-        (CellType::AntiSlashMirror, Heading::Down) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Right,
-        }),
-        (CellType::AntiSlashMirror, Heading::Left) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Up,
-        }),
-        (CellType::AntiSlashMirror, Heading::Right) => res.push(Beam {
-            x,
-            y,
-            heading: Heading::Down,
-        }),
     }
     res
 }
@@ -251,7 +213,7 @@ fn part(map: &Matrix2D<CellType>, start_x: usize, start_y: usize, start_heading:
         let mut new_adjacents = vec![];
         for beam in adjacents {
             visited.insert(beam.clone());
-            new_adjacents.extend(beam.nexts(&map).into_iter());
+            new_adjacents.extend(beam.nexts(map).into_iter());
         }
         if new_adjacents.is_empty() {
             break;
@@ -273,19 +235,19 @@ fn part2(map: &Matrix2D<CellType>) -> usize {
     let max1 = (0..map.height)
         .map(|idx| part(map, idx, 0, Heading::Down))
         .max()
-        .unwrap();
+        .unwrap_or(0);
     let max2 = (0..map.height)
         .map(|idx| part(map, idx, map.width - 1, Heading::Up))
         .max()
-        .unwrap();
+        .unwrap_or(0);
     let max3 = (0..map.width)
         .map(|idx| part(map, 0, idx, Heading::Right))
         .max()
-        .unwrap();
+        .unwrap_or(0);
     let max4 = (0..map.height)
         .map(|idx| part(map, map.width - 1, idx, Heading::Left))
         .max()
-        .unwrap();
+        .unwrap_or(0);
 
     max1.max(max2).max(max3).max(max4)
 }
@@ -298,7 +260,7 @@ fn main() {
     let data: Vec<CellType> = data
         .iter()
         .flat_map(|line| line.chars())
-        .map(|chr| chr.into())
+        .map(std::convert::Into::into)
         .collect();
 
     let mut data_matrix = Matrix2D::new(len_x, len_y);

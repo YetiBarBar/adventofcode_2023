@@ -80,7 +80,7 @@ mod tests {
                 .map(|v| find_symetries(v, false).into_iter().next().unwrap())
                 .sum::<usize>(),
             405
-        )
+        );
     }
 
     #[test]
@@ -95,6 +95,6 @@ mod tests {
                 .map(Option::unwrap)
                 .sum::<usize>(),
             400
-        )
+        );
     }
 }

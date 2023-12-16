@@ -160,7 +160,7 @@ LJ..."
     for y in 0..140 {
         for x in 0..140 {
             if v.contains(&(x, y)) {
-                print!("{}", data.get(&(x, y)).unwrap())
+                print!("{}", data.get(&(x, y)).unwrap());
             } else {
                 print!(" ");
             }

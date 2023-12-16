@@ -57,7 +57,7 @@ a1b2c3d4e5f
 treb7uchet"
             .lines()
             .collect();
-        assert_eq!(part1(data.iter()), 142)
+        assert_eq!(part1(data.iter()), 142);
     }
 
     #[test]
@@ -71,6 +71,6 @@ zoneight234
 7pqrstsixteen"
             .lines()
             .collect();
-        assert_eq!(part2(&data), 281)
+        assert_eq!(part2(&data), 281);
     }
 }

@@ -167,7 +167,7 @@ O.#..O.#.#
 #....###..
 #OO..#...."
             .lines()
-            .map(|line| line.to_string())
+            .map(std::string::ToString::to_string)
             .collect();
         assert_eq!(part1(&data), 136);
     }

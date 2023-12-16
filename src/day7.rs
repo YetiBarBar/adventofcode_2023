@@ -170,7 +170,7 @@ QQQJA 483"
             .map(Result::unwrap)
             .collect();
 
-        assert_eq!(compute(&raw), 6440)
+        assert_eq!(compute(&raw), 6440);
     }
 
     #[test]
@@ -185,6 +185,6 @@ QQQJA 483"
             .map(Result::unwrap)
             .collect();
 
-        assert_eq!(compute(&raw), 5905)
+        assert_eq!(compute(&raw), 5905);
     }
 }
