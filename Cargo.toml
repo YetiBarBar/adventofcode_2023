@@ -66,6 +66,10 @@ path = "src/day15.rs"
 name = "day16"
 path = "src/day16.rs"
 
+[[bin]]
+name = "day18"
+path = "src/day18.rs"
+
 [dependencies]
 adventofcode-tooling = { path = "../adventofcode-tooling/" }
 nom = "7"
